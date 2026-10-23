@@ -16,7 +16,7 @@ An AI-Thinker ESP32-CAM shows live video on a 2.8" touch display. Tap the screen
 | **Touch calibration** | **The ESP32-CAM** |
 | <img src="Images/screen_calibration.png" width="320" alt="Touch calibration crosshair"> | <img src="Images/camera2.jpg" width="320" alt="AI-Thinker ESP32-CAM module"> |
 <br>
-<img src="Images/schematic.jpg" width="680" alt="Schematic">
+<img src="Images/schematic.jpg" width="690" alt="Schematic">
 
 *Screens rendered pixel-for-pixel from the sketch's drawing code and fonts. The AI answers are examples.*
 
