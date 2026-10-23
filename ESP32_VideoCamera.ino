@@ -51,6 +51,9 @@
 #include <Fonts/FreeSans9pt7b.h>
 #include "board_config.h"             // select the camera model in board_config.h
 
+// ESP_WEBCAM_VERSION major.minor
+#define ESP_WEBCAM_VERSION 1.02
+
 // ===========================
 // Defines
 // ===========================
@@ -80,7 +83,9 @@
 #define FLASH_AUTO         1
 #define FLASH_ON           2
 #define FLASH_LED_PIN      4    // same pin as TOUCH_MISO
-#define FLASH_LEDC_CHANNEL 15   // PWM channel for the LED (the camera clock uses channel 0)
+#define FLASH_LEDC_CHANNEL 2    // PWM channel for the LED. Must be 0-7 (high-speed group): the camera
+                                // clock runs on a low-speed timer that the core doesn't know about,
+                                // and channels 8-15 would reconfigure it and stop the camera
 #define FLASH_WARMUP_MS    500  // time for auto-exposure to adjust to the flash before the photo
 
 // Text buffer sizes
@@ -130,12 +135,12 @@
 
 // WiFi: normally chosen on the WiFi Setup screen and saved in flash (NVS).
 // Optional default used only when nothing has been saved yet; leave "" to go straight to setup.
-const char *DEFAULT_SSID = "";
-const char *DEFAULT_PASSWORD = "";
+const char *DEFAULT_SSID = "YOUR_SSID";
+const char *DEFAULT_PASSWORD = "YOUR_PASSWORD";
 
 // AI image evaluation (Google Gemini API, free tier)
 // Get a free key at https://aistudio.google.com/apikey
-const char *GEMINI_API_KEY = "PASTE_YOUR_GEMINI_API_KEY_HERE";  // keep your real key out of public repos
+const char *GEMINI_API_KEY = "YOUR_API_KEY";  // keep your real key out of public repos
 // Model to use. If you get sporadic results (frequent "busy" / HTTP 503 errors, rate-limit
 // errors, or weak answers), try another free-tier model that accepts images:
 //   "gemini-3.5-flash-lite"  fast and light, usually the least busy (default)
@@ -165,8 +170,9 @@ const bool CAMERA_FLIP = false;      // flip the picture upside down
 
 // LED flash for AI photos
 const int FLASH_MODE = FLASH_AUTO;   // FLASH_OFF, FLASH_AUTO (only when the scene is dark), or FLASH_ON
-const int FLASH_DARK_LEVEL = 60;     // auto mode: flash when the scene's average brightness (0-255)
-                                     // is below this (each photo prints its level to the Serial Monitor)
+const int FLASH_DARK_LEVEL = 90;     // auto mode: flash when the scene's average brightness (0-255)
+                                     // is below this (each photo prints its level to the Serial Monitor).
+                                     // Auto-exposure brightens dim rooms, so they often measure 70-100.
 const int FLASH_BRIGHTNESS = 128;    // 1-255 (255 = full power, which is very bright and gets hot)
 
 // ===========================
@@ -264,6 +270,9 @@ char aiResult[RESULT_MAX] = "";
 // Running totals used while measuring how dark a frame is
 uint32_t lumaSum = 0;
 uint32_t lumaCount = 0;
+
+// True while the flash LED is driven by PWM (false: plain on/off fallback)
+bool flashPwm = false;
 
 // Result screen state
 bool showingResult = false;    // true while an AI result is on screen (live video paused)
@@ -568,14 +577,25 @@ bool flashNeeded() {
 // line, so the SPI bus is released first: nothing may be drawn until flashOff().
 void flashOn() {
   SPI.end();
-  ledcAttachChannel(FLASH_LED_PIN, 5000, 8, FLASH_LEDC_CHANNEL);
-  ledcWrite(FLASH_LED_PIN, FLASH_BRIGHTNESS);
+  flashPwm = ledcAttachChannel(FLASH_LED_PIN, 5000, 8, FLASH_LEDC_CHANNEL);
+  if (flashPwm) {
+    ledcWrite(FLASH_LED_PIN, FLASH_BRIGHTNESS);
+  } else {
+    // PWM unavailable: plain on/off at full brightness instead
+    Serial.println("[AI] Flash PWM setup failed, using full brightness");
+    pinMode(FLASH_LED_PIN, OUTPUT);
+    digitalWrite(FLASH_LED_PIN, HIGH);
+  }
 }
 
 // Turn the flash LED off and give GPIO 4 back to the SPI bus (display and touch)
 void flashOff() {
-  ledcWrite(FLASH_LED_PIN, 0);
-  ledcDetach(FLASH_LED_PIN);
+  if (flashPwm) {
+    ledcWrite(FLASH_LED_PIN, 0);
+    ledcDetach(FLASH_LED_PIN);
+  } else {
+    digitalWrite(FLASH_LED_PIN, LOW);
+  }
   SPI.begin(TFT_SCK, TOUCH_MISO, TFT_MOSI, TFT_CS);
 }
 
