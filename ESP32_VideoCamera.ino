@@ -55,6 +55,33 @@
 #define ESP_WEBCAM_VERSION 1.02
 
 // ===========================
+// User settings: enter your data here
+// ===========================
+
+// WiFi: normally chosen on the WiFi Setup screen and saved in flash (NVS).
+// Optional default used only when nothing has been saved yet; leave "" to go straight to setup.
+const char *DEFAULT_SSID = "YOUR_SSID";
+const char *DEFAULT_PASSWORD = "YOUR_PASSWORD";
+
+// AI image evaluation (Google Gemini API, free tier)
+// Get a free key at https://aistudio.google.com/apikey
+const char *GEMINI_API_KEY = "YOUR_API_KEY";  // keep your real key out of public repos
+// Model to use. If you get sporadic results (frequent "busy" / HTTP 503 errors, rate-limit
+// errors, or weak answers), try another free-tier model that accepts images:
+//   "gemini-3.5-flash-lite"  fast and light, usually the least busy (default)
+//   "gemini-3.1-flash-lite"  older lite model, often available when newer ones are busy
+//   "gemini-3.6-flash"       better answers, slower, lower free limits
+//   "gemini-3.8-flash"       newest and smartest Flash model, busiest at peak times
+//   "gemini-2.5-flash"       previous generation, a good fallback
+//   "gemini-2.5-flash-lite"  previous generation lite
+//   "gemini-flash-latest"    alias that always points to the newest Flash model
+// Free-tier models and limits change over time: see https://ai.google.dev/gemini-api/docs/pricing
+// and your limits at https://aistudio.google.com/rate-limit
+const char *GEMINI_MODEL = "gemini-3.5-flash-lite";
+const char *AI_PROMPT = "What is in this photo? Answer in 1-3 short sentences, then list the main objects you see. Include an approximate cost for the items.";
+
+
+// ===========================
 // Defines
 // ===========================
 
@@ -129,31 +156,7 @@
 #define WB_TEXT_W  88
 #define WB_NEXT_X  260
 
-// ===========================
-// User settings: enter your data here
-// ===========================
 
-// WiFi: normally chosen on the WiFi Setup screen and saved in flash (NVS).
-// Optional default used only when nothing has been saved yet; leave "" to go straight to setup.
-const char *DEFAULT_SSID = "YOUR_SSID";
-const char *DEFAULT_PASSWORD = "YOUR_PASSWORD";
-
-// AI image evaluation (Google Gemini API, free tier)
-// Get a free key at https://aistudio.google.com/apikey
-const char *GEMINI_API_KEY = "YOUR_API_KEY";  // keep your real key out of public repos
-// Model to use. If you get sporadic results (frequent "busy" / HTTP 503 errors, rate-limit
-// errors, or weak answers), try another free-tier model that accepts images:
-//   "gemini-3.5-flash-lite"  fast and light, usually the least busy (default)
-//   "gemini-3.1-flash-lite"  older lite model, often available when newer ones are busy
-//   "gemini-3.6-flash"       better answers, slower, lower free limits
-//   "gemini-3.8-flash"       newest and smartest Flash model, busiest at peak times
-//   "gemini-2.5-flash"       previous generation, a good fallback
-//   "gemini-2.5-flash-lite"  previous generation lite
-//   "gemini-flash-latest"    alias that always points to the newest Flash model
-// Free-tier models and limits change over time: see https://ai.google.dev/gemini-api/docs/pricing
-// and your limits at https://aistudio.google.com/rate-limit
-const char *GEMINI_MODEL = "gemini-3.5-flash-lite";
-const char *AI_PROMPT = "What is in this photo? Answer in 1-3 short sentences, then list the main objects you see. Include an approximate cost for the items.";
 
 // Camera picture settings, applied at startup.
 // Tip: the controls on the camera's web page (http://<camera IP>) change these live, so you can
