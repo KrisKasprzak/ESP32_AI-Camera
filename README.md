@@ -1,6 +1,6 @@
 # ESP32-CAM AI Viewer
 
-Point a $10 camera at something, tap the screen, and an AI tells you what it sees (and roughly what it's worth).
+Point this handy camera at something, tap the screen, and an AI tells you what it sees, and roughly what it's worth.
 
 An AI-Thinker ESP32-CAM shows live video on a 2.8" touch display. Tap the screen and it takes a photo, sends it to Google's Gemini AI (free tier), and shows the answer on screen. Every photo and answer is saved to the onboard microSD card. A fun weekend project for about **$50** in parts.
 
