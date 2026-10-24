@@ -4,7 +4,7 @@ Point this handy camera at something, tap the screen, and an AI tells you what i
 
 An AI-Thinker ESP32-CAM shows live video on a 2.8" touch display. Tap the screen and it takes a photo, sends it to Google's Gemini AI (free tier), and shows the answer on screen. Every photo and answer is saved to the onboard microSD card. A fun weekend project for about **$50** in parts.
 
-> 🎬 **A YouTube video walking through the build is coming soon!** I'll add the link here once it's up.
+> 🎬 Here's a YouTube video walking you through the build!** [I'll add the link here once it's up.](https://youtu.be/5GRHeFxBVBY)
 
 ## Screens
 
